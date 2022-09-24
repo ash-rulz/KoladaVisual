@@ -25,19 +25,20 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            selectInput("chooseKPI",
+            selectizeInput("chooseKPI",
                         label = 'Select KPI',
                         choices = c(data_frame$kpi)),
-            selectInput('chooseMunici',
+            selectizeInput('chooseMunici',
                         label = 'Select Municipality',
 
                         choices = c(data_frame$municipality),
+                        multiple = TRUE
                         )),
 
         # Show a plot of the generated distribution
         mainPanel(
           textOutput("municipality"),
-          plotOutput('plot1', width = "700px", height = '500px')
+          plotOutput('plot1', width = '1000px', height = '1000px')
         )
     )
 )
@@ -46,11 +47,25 @@ ui <- fluidPage(
 server <- function(input, output) {
 
     output$plot1 <- renderPlot({
-      if(input$chooseMunici != ""){
-        df <- data_frame[data_frame['kpi'] == input$chooseKPI &
-                           data_frame['municipality'] == input$chooseMunici,]
+      # df <- NULL
+      
+      if(length(input$chooseMunici) == 1){
+        df <- data_frame[data_frame[,'kpi'] == input$chooseKPI &
+                           data_frame[,'municipality'] %in% input$chooseMunici,]
         ggplot(data = df, 
                aes(x=period, y=value, color = gender)) + 
+          geom_line() +
+          geom_point() +
+          scale_y_continuous(breaks = pretty_breaks())
+      }
+      else if (length(input$chooseMunici) > 1) {
+        munici_vec <- c(input$chooseMunici)
+        df <- NULL
+        df <- data_frame[data_frame[,'kpi'] == input$chooseKPI &
+                           data_frame[,'municipality'] %in% munici_vec &
+                           data_frame[,'gender'] == 'T',]
+        ggplot(data = df, 
+               aes(x=period, y=value, color = municipality)) + 
           geom_line() +
           geom_point() +
           scale_y_continuous(breaks = pretty_breaks())
