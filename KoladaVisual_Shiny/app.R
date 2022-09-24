@@ -11,10 +11,11 @@ library(shiny)
 library(httr)
 library(jsonlite)
 library(tidyr)
-library(KoladaPackage)
+devtools::install_github('ash-rulz/KoladaPackage')
+library("KoladaPackage")
 library(ggplot2)
 library(scales)
-devtools::install_github('ash-rulz/KoladaPackage')
+
 # Define UI for application that draws a histogram
 kolda_lst <- get_kolda_data('kpi/n60026/year/2020,2019,2018,2017,2015,2016') 
 data_frame <- kolda_lst$FinalData
