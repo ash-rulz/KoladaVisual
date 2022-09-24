@@ -14,9 +14,13 @@ library(tidyr)
 library(KoladaPackage)
 library(ggplot2)
 library(scales)
+
 # Define UI for application that draws a histogram
-data_frame <- get_kolda_data('kpi/n60026/year/2020,2019,2018,2017,2015,2016') 
-data_frame <- cbind(data_frame[,1:5], value = as.integer(data_frame[,7]))
+kolda_lst <- get_kolda_data('kpi/n60026/year/2020,2019,2018,2017,2015,2016') 
+data_frame <- kolda_lst$FinalData
+mun_mast_df <- kolda_lst$MunMaster
+mun_mast_df <- mun_mast_df[mun_mast_df$id %in% 
+                             unique(data_frame$municipality),]
 ui <- fluidPage(
 
     # Application title
@@ -30,14 +34,13 @@ ui <- fluidPage(
                         choices = c(data_frame$kpi)),
             selectizeInput('chooseMunici',
                         label = 'Select Municipality',
-
-                        choices = c(data_frame$municipality),
+                        choices = setNames(mun_mast_df$id, mun_mast_df$title),
                         multiple = TRUE
                         )),
 
         # Show a plot of the generated distribution
         mainPanel(
-          textOutput("municipality"),
+          # textOutput("municipality"),
           plotOutput('plot1', width = '1000px', height = '1000px')
         )
     )
@@ -47,7 +50,6 @@ ui <- fluidPage(
 server <- function(input, output) {
 
     output$plot1 <- renderPlot({
-      # df <- NULL
       
       if(length(input$chooseMunici) == 1){
         df <- data_frame[data_frame[,'kpi'] == input$chooseKPI &
@@ -72,9 +74,9 @@ server <- function(input, output) {
       }
       
     })
-    output$municipality <- {(
-      renderText(input$chooseMunici)
-    )}
+    # output$municipality <- {(
+    #   renderText(input$chooseMunici)
+    # )}
 
 }
 
