@@ -43,7 +43,7 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
           # textOutput("municipality"),
-          plotOutput('plot1', width = '1000px', height = '1000px')
+          plotOutput('plot1', height = '900px')
         )
     )
 )
@@ -59,6 +59,14 @@ server <- function(input, output) {
         ggplot(data = df, 
                aes(x=period, y=value, color = gender)) + 
           geom_line() +
+          ggtitle('Monthly Salary per Region by Gender')+
+          theme(plot.title = element_text(hjust = 0.5, face = 'bold', size = 25), 
+                axis.title.x = element_text(vjust = -2, face = 'bold', size = 12),
+                axis.title.y = element_text(vjust = 2, face = 'bold', size = 12), 
+                legend.title = element_text(face = 'bold'), 
+                legend.background = element_rect(colour = 'Grey'))+
+          xlab('Period/Years')+
+          ylab('Value/Salary')+
           geom_point() +
           scale_y_continuous(breaks = pretty_breaks())
       }
@@ -72,6 +80,14 @@ server <- function(input, output) {
                aes(x=period, y=value, color = municipality)) + 
           geom_line() +
           geom_point() +
+          ggtitle('Total Monthly Salary per Region')+
+          theme(plot.title = element_text(hjust = 0.5, face = 'bold', size = 25),
+                axis.title.x = element_text(vjust = -2, face = 'bold', size = 12),
+                axis.title.y = element_text(vjust = 2, face = 'bold', size = 12),
+                legend.title = element_text(face = 'bold'), 
+                legend.background = element_rect(colour = 'Grey'))+
+          xlab('Period/Years')+
+          ylab('Value/Salary')+
           scale_y_continuous(breaks = pretty_breaks())
       }
       
