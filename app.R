@@ -23,6 +23,10 @@ data_frame <- kolda_lst$FinalData
 mun_mast_df <- kolda_lst$MunMaster
 mun_mast_df <- mun_mast_df[mun_mast_df$id %in% 
                              unique(data_frame$municipality),]
+data_frame <- merge(x=data_frame, 
+                    y=mun_mast_df[,c('id', 'title')], 
+                    by.x = 'municipality', by.y = 'id', 
+                    all = TRUE)
 ui <- fluidPage(
 
     # Application title
@@ -68,7 +72,8 @@ server <- function(input, output) {
           xlab('Period/Years')+
           ylab('Value/Salary')+
           geom_point() +
-          scale_y_continuous(breaks = pretty_breaks())
+          scale_y_continuous(breaks = pretty_breaks()) +
+          scale_x_continuous(breaks = unique(data_frame$period))
       }
       else if (length(input$chooseMunici) > 1) {
         munici_vec <- c(input$chooseMunici)
@@ -77,7 +82,7 @@ server <- function(input, output) {
                            data_frame[,'municipality'] %in% munici_vec &
                            data_frame[,'gender'] == 'T',]
         ggplot(data = df, 
-               aes(x=period, y=value, color = municipality)) + 
+               aes(x=period, y=value, color = title)) + 
           geom_line() +
           geom_point() +
           ggtitle('Total Monthly Salary per Region')+
@@ -88,7 +93,8 @@ server <- function(input, output) {
                 legend.background = element_rect(colour = 'Grey'))+
           xlab('Period/Years')+
           ylab('Value/Salary')+
-          scale_y_continuous(breaks = pretty_breaks())
+          scale_y_continuous(breaks = pretty_breaks())+
+          scale_x_continuous(breaks = unique(data_frame$period))
       }
       
     })
