@@ -17,7 +17,7 @@ library(scales)
 devtools::install_github('ash-rulz/KoladaPackage')
 library("KoladaPackage")
 
-# Define UI for application that draws a histogram
+# Pulling data from KoladaPackage and 
 kolda_lst <- get_kolda_data('kpi/n60026/year/2020,2019,2018,2017,2015,2016,2014,2013') 
 data_frame <- kolda_lst$FinalData
 mun_mast_df <- kolda_lst$MunMaster
@@ -27,6 +27,8 @@ data_frame <- merge(x=data_frame,
                     y=mun_mast_df[,c('id', 'title')], 
                     by.x = 'municipality', by.y = 'id', 
                     all = TRUE)
+
+# Define UI for application that draws a Line Graph using ggplot2
 ui <- fluidPage(
 
     # Application title
@@ -52,55 +54,44 @@ ui <- fluidPage(
     )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic required to draw a line graph
 server <- function(input, output) {
-
+  
+  # reactive expression for data frame manipulation required as data for ggplot2
+  df_react <- reactive({
+    munici_vec <- c(input$chooseMunici)
+    df <- data_frame[data_frame[,'kpi'] == input$chooseKPI &
+                       data_frame[,'municipality'] %in% munici_vec &
+                       data_frame[,'gender'] == 'T',]
+  })
+  
+  # reactive expression for plotting line graph
+  plot_react <- reactive({
+    ggplot(data = df_react(), 
+           aes(x=period, y=value, color = title)) + 
+      geom_line() +
+      ggtitle('Total Monthly Salary per Region')+
+      theme(plot.title = element_text(hjust = 0.5, face = 'bold', size = 25), 
+            axis.title.x = element_text(vjust = -2, face = 'bold', size = 12),
+            axis.title.y = element_text(vjust = 2, face = 'bold', size = 12), 
+            legend.title = element_text(face = 'bold'), 
+            legend.background = element_rect(colour = 'Grey'))+
+      xlab('Period/Years')+
+      ylab('Value/Salary')+
+      geom_point() +
+      scale_y_continuous(breaks = pretty_breaks()) +
+      scale_x_continuous(breaks = unique(data_frame$period))
+  })
+    
     output$plot1 <- renderPlot({
       
-      if(length(input$chooseMunici) == 1){
-        df <- data_frame[data_frame[,'kpi'] == input$chooseKPI &
-                           data_frame[,'municipality'] %in% input$chooseMunici,]
-        ggplot(data = df, 
-               aes(x=period, y=value, color = gender)) + 
-          geom_line() +
-          ggtitle('Monthly Salary per Region by Gender')+
-          theme(plot.title = element_text(hjust = 0.5, face = 'bold', size = 25), 
-                axis.title.x = element_text(vjust = -2, face = 'bold', size = 12),
-                axis.title.y = element_text(vjust = 2, face = 'bold', size = 12), 
-                legend.title = element_text(face = 'bold'), 
-                legend.background = element_rect(colour = 'Grey'))+
-          xlab('Period/Years')+
-          ylab('Value/Salary')+
-          geom_point() +
-          scale_y_continuous(breaks = pretty_breaks()) +
-          scale_x_continuous(breaks = unique(data_frame$period))
-      }
-      else if (length(input$chooseMunici) > 1) {
-        munici_vec <- c(input$chooseMunici)
-        df <- NULL
-        df <- data_frame[data_frame[,'kpi'] == input$chooseKPI &
-                           data_frame[,'municipality'] %in% munici_vec &
-                           data_frame[,'gender'] == 'T',]
-        ggplot(data = df, 
-               aes(x=period, y=value, color = title)) + 
-          geom_line() +
-          geom_point() +
-          ggtitle('Total Monthly Salary per Region')+
-          theme(plot.title = element_text(hjust = 0.5, face = 'bold', size = 25),
-                axis.title.x = element_text(vjust = -2, face = 'bold', size = 12),
-                axis.title.y = element_text(vjust = 2, face = 'bold', size = 12),
-                legend.title = element_text(face = 'bold'), 
-                legend.background = element_rect(colour = 'Grey'))+
-          xlab('Period/Years')+
-          ylab('Value/Salary')+
-          scale_y_continuous(breaks = pretty_breaks())+
-          scale_x_continuous(breaks = unique(data_frame$period))
+      if(length(input$chooseMunici) >= 1){
+        
+        plot_react()
       }
       
     })
-    # output$municipality <- {(
-    #   renderText(input$chooseMunici)
-    # )}
+    
 
 }
 
