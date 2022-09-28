@@ -18,7 +18,7 @@ devtools::install_github('ash-rulz/KoladaPackage')
 library("KoladaPackage")
 
 # Pulling data from KoladaPackage and 
-kolda_lst <- get_kolda_data('kpi/n60026/year/2020,2019,2018,2017,2015,2016,2014,2013') 
+kolda_lst <- get_kolda_data('kpi/n60026/year/2020,2019,2018,2017,2015,2016,2014,2013,2012') 
 data_frame <- kolda_lst$FinalData
 mun_mast_df <- kolda_lst$MunMaster
 mun_mast_df <- mun_mast_df[mun_mast_df$id %in% 
@@ -70,14 +70,14 @@ server <- function(input, output) {
     ggplot(data = df_react(), 
            aes(x=period, y=value, color = title)) + 
       geom_line() +
-      ggtitle('Total Monthly Salary per Region')+
+      ggtitle('Total salaried people')+
       theme(plot.title = element_text(hjust = 0.5, face = 'bold', size = 25), 
             axis.title.x = element_text(vjust = -2, face = 'bold', size = 12),
             axis.title.y = element_text(vjust = 2, face = 'bold', size = 12), 
             legend.title = element_text(face = 'bold'), 
             legend.background = element_rect(colour = 'Grey'))+
       xlab('Period/Years')+
-      ylab('Value/Salary')+
+      ylab('Value/Salaried Personnel')+
       geom_point() +
       scale_y_continuous(breaks = pretty_breaks()) +
       scale_x_continuous(breaks = unique(data_frame$period))
